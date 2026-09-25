@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0c0d0f" />
+  <title>Fuel State — Nutrição no Esporte</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+    :root { --ink:#f4f1e9; --muted:#a3a39b; --acid:#d8ff3e; --orange:#ff6b35; --blue:#8eb7ff; --bg:#0c0d0f; --line:rgba(244,241,233,.15); }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; background:var(--bg); color:var(--ink); font-family:Manrope, sans-serif; overflow:hidden; }
+    button { font:inherit; color:inherit; }
+    .grain { position:fixed; inset:-100%; z-index:20; pointer-events:none; opacity:.06; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E"); transform:rotate(8deg); }
+    .app { height:100vh; position:relative; isolation:isolate; overflow:hidden; }
+    .orb { position:absolute; border-radius:50%; filter:blur(2px); pointer-events:none; transition:all 1.2s cubic-bezier(.2,.8,.2,1); }
+    .orb.a { width:38vw; height:38vw; top:-19vw; right:-10vw; background:radial-gradient(circle,rgba(216,255,62,.18),transparent 65%); }
+    .orb.b { width:32vw; height:32vw; bottom:-18vw; left:-8vw; background:radial-gradient(circle,rgba(142,183,255,.13),transparent 68%); }
+    .topbar { height:86px; padding:25px 4vw; display:flex; align-items:center; justify-content:space-between; position:absolute; inset:0 0 auto; z-index:5; border-bottom:1px solid var(--line); }
+    .brand { display:flex; gap:12px; align-items:center; letter-spacing:-.04em; font-size:15px; font-weight:800; }
+    .brand-mark { width:22px; height:22px; border:2px solid var(--acid); border-radius:50% 50% 50% 4px; transform:rotate(-45deg); position:relative; }
+    .brand-mark:after { content:''; width:5px; height:5px; border-radius:50%; background:var(--acid); position:absolute; top:6px; left:6px; }
+    .counter { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:.08em; }
+    .counter b { color:var(--ink); font-weight:400; }
+    main { height:100%; position:relative; }
+    .slide { position:absolute; inset:86px 0 0; padding:clamp(45px,7vh,90px) 10vw 100px; display:grid; align-content:center; opacity:0; transform:translateX(8vw) scale(.97); pointer-events:none; transition:opacity .7s ease,transform .9s cubic-bezier(.16,1,.3,1); }
+    .slide.active { opacity:1; transform:none; pointer-events:auto; z-index:2; }
+    .kicker { color:var(--acid); font:500 11px 'DM Mono',monospace; letter-spacing:.18em; text-transform:uppercase; margin-bottom:25px; }
+    h1,h2,p { margin:0; }
+    h1 { max-width:950px; font-size:clamp(58px,10.5vw,160px); line-height:.86; letter-spacing:-.095em; font-weight:800; }
+    h2 { max-width:800px; font-size:clamp(42px,6.5vw,98px); line-height:.9; letter-spacing:-.08em; font-weight:800; }
+    .outline { color:transparent; -webkit-text-stroke:1px var(--ink); }
+    .lead { color:var(--muted); line-height:1.7; max-width:510px; font-size:clamp(14px,1.4vw,18px); margin-top:35px; }
+    .accent { color:var(--acid); }
+    .hero-note { position:absolute; right:10vw; bottom:13vh; width:185px; color:var(--muted); font:11px 'DM Mono',monospace; line-height:1.7; }
+    .hero-note:before { content:'↗'; color:var(--acid); font-size:24px; display:block; margin-bottom:8px; }
+    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:45px; max-width:1000px; }
+    .card { border:1px solid var(--line); min-height:175px; padding:24px; background:rgba(255,255,255,.025); position:relative; overflow:hidden; transition:transform .3s,background .3s; }
+    .card:hover { transform:translateY(-5px); background:rgba(216,255,62,.06); }
+    .card:before { content:''; position:absolute; width:60px;height:60px; right:-22px;top:-22px;border-radius:50%;background:var(--acid); opacity:.8; }
+    .card .num { font:11px 'DM Mono',monospace; color:var(--muted); }
+    .card strong { display:block; font-size:22px; letter-spacing:-.06em; margin-top:28px; }
+    .card p { color:var(--muted); font-size:12px; line-height:1.5; margin-top:8px; }
+    .big-stat { font:800 clamp(100px,17vw,245px)/.7 Manrope,sans-serif; letter-spacing:-.13em; color:var(--acid); }
+    .stat-label { color:var(--muted); font-size:13px; max-width:230px; margin:35px 0 0 15px; line-height:1.5; }
+    .split { grid-template-columns:1fr 1fr; gap:8vw; align-items:center; }
+    .rings { width:min(35vw,430px); aspect-ratio:1; position:relative; margin:auto; }
+    .ring { position:absolute; inset:0; border:1px solid var(--line); border-radius:50%; animation:spin 20s linear infinite; }
+    .ring:nth-child(2) { inset:13%; border-color:var(--acid); border-left-color:transparent; animation-duration:13s; animation-direction:reverse; }
+    .ring:nth-child(3) { inset:27%; border-color:var(--orange); border-right-color:transparent; animation-duration:8s; }
+    .ring-dot { width:11px;height:11px;background:var(--acid);border-radius:50%;position:absolute;top:8%;left:19%;box-shadow:0 0 25px var(--acid); }
+    .ring-word { position:absolute; inset:0; display:grid; place-items:center; font:11px 'DM Mono',monospace; letter-spacing:.2em; color:var(--muted); }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .timeline { display:flex; align-items:stretch; max-width:900px; margin-top:48px; border-top:1px solid var(--line); }
+    .time { flex:1; padding:19px 15px 0 0; border-right:1px solid var(--line); min-height:115px; }
+    .time:last-child { border:0; padding-left:15px; }
+    .time b { font-size:30px; letter-spacing:-.08em; display:block; }
+    .time span { color:var(--muted); font:10px 'DM Mono',monospace; text-transform:uppercase; display:block; margin-top:12px; line-height:1.5; }
+    .quote { font-size:clamp(32px,5.2vw,76px); font-weight:700; letter-spacing:-.08em; line-height:.98; max-width:900px; }
+    .quote em { color:var(--acid); font-style:normal; }
+    .footer { position:absolute; bottom:28px; left:4vw; right:4vw; display:flex; justify-content:space-between; align-items:center; z-index:5; }
+    .progress { width:180px; height:2px; background:var(--line); } .progress i { display:block; height:100%; width:0; background:var(--acid); transition:width .5s; }
+    .hint { font:10px 'DM Mono',monospace; color:var(--muted); letter-spacing:.08em; }
+    .controls { display:flex; gap:8px; }
+    .controls button { border:1px solid var(--line); background:transparent; width:39px;height:35px;cursor:pointer;transition:.25s; }
+    .controls button:hover { background:var(--acid); color:#0c0d0f; border-color:var(--acid); }
+    .cursor-hand { position:fixed; z-index:30; pointer-events:none; font-size:27px; opacity:0; filter:drop-shadow(0 3px 8px #000); transition:opacity .2s; }
+    .cursor-hand.click { animation:click .65s ease; }
+    @keyframes click { 0%{transform:scale(1)} 40%{transform:scale(.75)} 100%{transform:scale(1)} }
+    .flash { position:fixed; inset:0; background:var(--acid); opacity:0; pointer-events:none; z-index:25; }
+    .flash.go { animation:flash .5s ease; } @keyframes flash { 0%{opacity:0} 20%{opacity:.08} 100%{opacity:0} }
+    @media(max-width:700px) { .topbar{height:68px;padding:20px 6vw}.slide{inset:68px 0 0;padding:35px 7vw 90px}.hero-note{display:none}.grid{grid-template-columns:1fr;margin-top:30px}.card{min-height:120px;padding:18px}.card strong{margin-top:15px;font-size:18px}.split{grid-template-columns:1fr}.rings{width:55vw;order:-1;margin:0 0 20px}.timeline{margin-top:30px}.time b{font-size:21px}.hint{display:none}.footer{bottom:20px;left:7vw;right:7vw}.progress{width:130px} }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="grain"></div><div class="orb a"></div><div class="orb b"></div><div class="flash"></div><div class="cursor-hand">☝</div>
+    <header class="topbar"><div class="brand"><span class="brand-mark"></span>FUEL STATE</div><div class="counter"><b id="current">01</b> / <span id="total">06</span></div></header>
+    <main>
+      <section class="slide active"><div class="kicker">01 — A ciência por trás do movimento</div><h1>COMA.<br><span class="outline">MOVA.</span><br>EVOLUA<span class="accent">.</span></h1><p class="lead">Nutrição esportiva não é sobre comer menos. É sobre entregar ao seu corpo exatamente o que ele precisa para ir além.</p><div class="hero-note">Uma apresentação visual sobre energia, performance e recuperação.</div></section>
+      <section class="slide"><div class="kicker">02 — O combustível certo</div><h2>ENERGIA<br>É <span class="accent">ESTRATÉGIA.</span></h2><div class="grid"><article class="card"><span class="num">01 / 03</span><strong>Carboidrato</strong><p>O combustível preferido para esforços intensos. Ele mantém o ritmo quando o corpo pede potência.</p></article><article class="card"><span class="num">02 / 03</span><strong>Proteína</strong><p>Matéria-prima para reparar e construir músculos após o estímulo do treino.</p></article><article class="card"><span class="num">03 / 03</span><strong>Gorduras</strong><p>Energia de longa duração e suporte para funções essenciais do organismo.</p></article></div></section>
+      <section class="slide split"><div><div class="kicker">03 — Hidratação</div><div class="big-stat">2%</div><p class="stat-label">Uma pequena queda no peso corporal por desidratação já pode comprometer a performance. Hidrate-se antes da sede.</p></div><div class="rings"><div class="ring"></div><div class="ring"></div><div class="ring"></div><span class="ring-dot"></span><span class="ring-word">HYDRATE / REPEAT</span></div></section>
+      <section class="slide"><div class="kicker">04 — O relógio também come</div><h2>O QUE VOCÊ<br>COME <span class="outline">IMPORTA.</span><br>QUANDO, TAMBÉM.</h2><div class="timeline"><div class="time"><b>2–3h</b><span>antes do treino<br>refeição completa</span></div><div class="time"><b>30–60'</b><span>antes<br>energia leve</span></div><div class="time"><b>durante</b><span>esforço longo<br>hidratação</span></div><div class="time"><b>até 2h</b><span>depois<br>recuperação</span></div></div></section>
+      <section class="slide"><div class="kicker">05 — Pós-treino</div><p class="quote">O treino quebra o corpo.<br>A <em>recuperação</em> decide<br>quem ele se torna.</p><p class="lead">Combine proteína, carboidrato, sono e consistência. Não existe suplemento que substitua o básico bem feito.</p></section>
+      <section class="slide"><div class="kicker">06 — Seu próximo movimento</div><h2>FAÇA DO<br>PRATO UM<br><span class="accent">PLANO.</span></h2><p class="lead">Comece pelo simples: comida de verdade, água, regularidade e atenção aos sinais do seu corpo. Performance é uma construção diária.</p><div style="margin-top:35px;font:11px 'DM Mono',monospace;color:var(--muted)">FUEL STATE / NUTRIÇÃO NO ESPORTE / 2026</div></section>
+    </main>
+    <footer class="footer"><span class="hint">← → &nbsp; ou &nbsp; DESLIZE PARA NAVEGAR</span><div class="progress"><i id="progress"></i></div><div class="controls"><button id="prev" aria-label="Slide anterior">←</button><button id="next" aria-label="Próximo slide">→</button></div></footer>
+  </div>
+  <script>
+    const slides=[...document.querySelectorAll('.slide')], progress=document.querySelector('#progress'), current=document.querySelector('#current'), hand=document.querySelector('.cursor-hand'), flash=document.querySelector('.flash'); let index=0, busy=false;
+    function move(dir){ if(busy)return; const next=Math.max(0,Math.min(slides.length-1,index+dir)); if(next===index)return; busy=true; hand.style.left=(48+Math.random()*12)+'vw'; hand.style.top=(45+Math.random()*12)+'vh'; hand.style.opacity=1; hand.classList.remove('click'); void hand.offsetWidth; hand.classList.add('click'); flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go'); setTimeout(()=>{ slides[index].classList.remove('active'); index=next; slides[index].classList.add('active'); current.textContent=String(index+1).padStart(2,'0'); progress.style.width=((index+1)/slides.length*100)+'%'; hand.style.opacity=0; busy=false; },300); }
+    document.querySelector('#next').onclick=()=>move(1); document.querySelector('#prev').onclick=()=>move(-1); progress.style.width=(100/slides.length)+'%';
+    document.addEventListener('keydown',e=>{if(['ArrowRight',' ','ArrowDown'].includes(e.key))move(1);if(['ArrowLeft','ArrowUp'].includes(e.key))move(-1);});
+    let startX=0; document.addEventListener('touchstart',e=>startX=e.touches[0].clientX,{passive:true}); document.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-startX;if(Math.abs(d)>45)move(d<0?1:-1)},{passive:true});
+  </script>
+</body>
+</html>
